@@ -1,6 +1,5 @@
 from blocklist_logout import BLOCKLIST_LOGOUT
 from db import db
-from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -10,15 +9,15 @@ from resources.comic import UserComics, MarvelComics, MarvelComicDetails
 from resources.user import UserRegister, UserLogin, UserLogout, UserProfile
 import os
 
-load_dotenv()
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_BLOCKLIST_ENABLED'] = True  # enable blocklist feature
 # allow blocklisting for access and refresh tokens
 app.config['JWT_BLOCKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
-app.secret_key = os.getenv('FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] =  os.getenv('FLASK_SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
 CORS(app)

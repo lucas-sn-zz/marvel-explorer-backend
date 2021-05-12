@@ -1,9 +1,8 @@
-import sqlite3
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, reqparse
 from models.comic import ComicModel
 from models.marvel import MarvelModel
 from services.comic import UserComicServices, MarvelComicServices, MarvelComicDetailsServices
-from flask_jwt_extended import get_jwt_identity, jwt_required
 
 
 class UserComics(Resource):
@@ -81,7 +80,6 @@ class MarvelComics(Resource):
 class MarvelComicDetails(Resource):
     @jwt_required()
     def get(self, id_comic):
-        # parser = reqparse.RequestParser()
         comic_details = MarvelComicDetailsServices.get_marvel_comic_details(
             id_user=get_jwt_identity(), id_comic=id_comic)
         return comic_details, 200
