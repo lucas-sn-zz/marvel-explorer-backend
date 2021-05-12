@@ -5,6 +5,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
+from resources.character import  UserCharacters, MarvelCharacters,MarvelCharacterDetails
 from resources.comic import  UserComics, MarvelComics,MarvelComicDetails
 from resources.user import UserRegister, UserLogin, UserLogout,UserProfile
 import os
@@ -26,11 +27,14 @@ jwt = JWTManager(app)
 
 api.add_resource(UserLogin, '/login')
 api.add_resource(UserLogout, '/logout')
-api.add_resource(UserProfile, '/user/my_profile')
-api.add_resource(UserRegister, '/register')
+api.add_resource(MarvelCharacterDetails, '/marvel/characters/<int:id_character>') #Ex: /marvel/characters/1009515
+api.add_resource(MarvelCharacters, '/marvel/characters')
 api.add_resource(MarvelComicDetails, '/marvel/comics/<int:id_comic>') # Ex: /marvel/comics/1009515
 api.add_resource(MarvelComics, '/marvel/comics')
+api.add_resource(UserRegister, '/register')
+api.add_resource(UserCharacters, '/user/characters')
 api.add_resource(UserComics, '/user/comics')
+api.add_resource(UserProfile, '/user/my_profile')
 
 
 ### routes
