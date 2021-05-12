@@ -12,13 +12,13 @@ class UserComics(Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name',
-        required=False,
-        type=str,
-        help='This field cannot be empty')     
+                            required=False,
+                            type=str,
+                            help='This field cannot be empty')
         data = parser.parse_args()
 
         comics = UserComicServices.get_user_comics_details(
-            id_user=get_jwt_identity(),**data)
+            id_user=get_jwt_identity(), **data)
         return comics, 201
 
     @jwt_required()
@@ -29,9 +29,9 @@ class UserComics(Resource):
                             type=int,
                             help='This field cannot be empty')
         parser.add_argument('name',
-                    required=True,
-                    type=str,
-                    help='This field cannot be empty')                    
+                            required=True,
+                            type=str,
+                            help='This field cannot be empty')
         data = parser.parse_args()
 
         if ComicModel.find_by_id(id_user=get_jwt_identity(), id_comic=data['id_comic']):
@@ -67,19 +67,21 @@ class MarvelComics(Resource):
                             required=False,
                             type=int,
                             help='This field cannot be empty')
-        
+
         data = parser.parse_args()
         if data['page'] == None:
             data['page'] = 1
 
         comics = MarvelComicServices.get_marvel_comics(**data,
-            id_user=get_jwt_identity())
+                                                       id_user=get_jwt_identity())
 
         return comics, 200
- 
+
+
 class MarvelComicDetails(Resource):
     @jwt_required()
-    def get(self,id_comic):
+    def get(self, id_comic):
         # parser = reqparse.RequestParser()
-        comic_details = MarvelComicDetailsServices.get_marvel_comic_details(id_user=get_jwt_identity(),id_comic=id_comic)
-        return comic_details,200
+        comic_details = MarvelComicDetailsServices.get_marvel_comic_details(
+            id_user=get_jwt_identity(), id_comic=id_comic)
+        return comic_details, 200

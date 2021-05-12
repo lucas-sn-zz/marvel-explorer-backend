@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from models.character import CharacterModel
 from models.marvel import MarvelModel
-from services.character import UserCharacterServices, MarvelCharacterServices,MarvelCharacterDetailsServices
+from services.character import UserCharacterServices, MarvelCharacterServices, MarvelCharacterDetailsServices
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 
@@ -17,7 +17,7 @@ class UserCharacters(Resource):
         data = parser.parse_args()
         try:
             characters = UserCharacterServices.get_user_characters_details(
-                id_user=get_jwt_identity(),**data)
+                id_user=get_jwt_identity(), **data)
             return characters, 201
         except Exception as e:
             return {"msg": "An error has occurred ",
@@ -67,8 +67,10 @@ class MarvelCharacters(Resource):
             return {"msg": "An error has occurred ",
                     "error": str(e)}, 500
 
+
 class MarvelCharacterDetails(Resource):
     @jwt_required()
-    def get(self,id_character):
-        character_details = MarvelCharacterDetailsServices.get_marvel_character_details(id_user=get_jwt_identity(),id_character=id_character)
+    def get(self, id_character):
+        character_details = MarvelCharacterDetailsServices.get_marvel_character_details(
+            id_user=get_jwt_identity(), id_character=id_character)
         return character_details

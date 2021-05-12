@@ -1,6 +1,6 @@
 from blocklist_logout import BLOCKLIST_LOGOUT
 from flask import Flask
-from flask_jwt_extended import create_access_token, create_refresh_token,get_jwt_identity,jwt_required,get_jwt
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
 from flask_restful import Resource, reqparse
 import hashlib
 from models.user import UserModel
@@ -9,21 +9,21 @@ from werkzeug.security import safe_str_cmp
 
 _user_parser = reqparse.RequestParser()
 _user_parser.add_argument('username',
-                    type=str,
-                    required=True,
-                    help="This field cannot be blank."
-                    )
+                          type=str,
+                          required=True,
+                          help="This field cannot be blank."
+                          )
 
 _user_parser.add_argument('email',
-                    type=str,
-                    required=True,
-                    help="This field cannot be blank."
-                    )
+                          type=str,
+                          required=True,
+                          help="This field cannot be blank."
+                          )
 _user_parser.add_argument('password',
-                    type=str,
-                    required=True,
-                    help="This field cannot be blank."
-                    )
+                          type=str,
+                          required=True,
+                          help="This field cannot be blank."
+                          )
 
 
 def hash_generate(value):
@@ -54,20 +54,19 @@ class UserLogin(Resource):
 
         user = UserModel.find_by_username(data['username'])
         if user and safe_str_cmp(user.password, hash_generate(data['password'])):
-           #identity will be add the user.id information in JWT
-            access_token = create_access_token(identity=user.id, fresh=True)
-            refresh_token = create_refresh_token(user.id)
-
+           # identity will be add the user.id information in JWT
+            access_token = create_access_token(identity=user.id, fresh=False)
             return {
                 'access_token': access_token
             }, 200
 
         return {"message": "Invalid Credentials"}, 401
 
+
 class UserLogout(Resource):
     @jwt_required()
     def post(self):
-        jti = get_jwt()['jti']  #jti is the JWT identification
+        jti = get_jwt()['jti']  # jti is the JWT identification
         BLOCKLIST_LOGOUT.add(jti)
         return {"message": "Successfully logged out"}, 200
 
@@ -79,33 +78,33 @@ class UserProfile(Resource):
         return {
             "usuario": user.username,
             "email": user.email
-                    },200
+        }, 200
 
     @jwt_required()
     def put(self):
         _user_parser = reqparse.RequestParser()
 
         _user_parser.add_argument('username',
-                    type=str,
-                    required=False,
-                    help="This field cannot be blank."
-                    )
+                                  type=str,
+                                  required=False,
+                                  help="This field cannot be blank."
+                                  )
 
         _user_parser.add_argument('email',
-                            type=str,
-                            required=False,
-                            help="This field cannot be blank."
-                            )
+                                  type=str,
+                                  required=False,
+                                  help="This field cannot be blank."
+                                  )
         _user_parser.add_argument('password',
-                            type=str,
-                            required=True,
-                            help="This field cannot be blank."
-                            )
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
         _user_parser.add_argument('new_password',
-                            type=str,
-                            required=True,
-                            help="This field cannot be blank."
-                            )
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
         data = _user_parser.parse_args()
         user = UserModel.find_by_id(get_jwt_identity())
         if user and safe_str_cmp(user.password, hash_generate(data['password'])):
@@ -117,7 +116,7 @@ class UserProfile(Resource):
                 user.password = hash_generate(data['new_password'])
             user.save_to_db()
 
-            jti = get_jwt()['jti']  #jti is the JWT identification
+            jti = get_jwt()['jti']  # jti is the JWT identification
             BLOCKLIST_LOGOUT.add(jti)
             return {"message": "Changes completed successfully. Please log in again"}, 200
 
