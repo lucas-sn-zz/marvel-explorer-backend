@@ -57,9 +57,7 @@ class UserLogin(Resource):
             refresh_token = create_refresh_token(user.id)
 
             return {
-                'access_token': access_token,
-                    'refresh_token': refresh_token
-
+                'access_token': access_token
             }, 200
 
         return {"message": "Invalid Credentials"}, 401
@@ -115,14 +113,12 @@ class UserProfile(Resource):
                             )
         data = _user_parser.parse_args()
         user = UserModel.find_by_id(get_jwt_identity())
-        print(user.password)
         if user and safe_str_cmp(user.password, hash_generate(data['password'])):
             if data['email']:
                 user.email = data['email']
             if data['username']:
                 user.email = data['email']
             if data['new_password']:
-                print(f"  -------------------{hash_generate(data['new_password'])}")
                 user.password = hash_generate(data['new_password'])
             user.save_to_db()
 
