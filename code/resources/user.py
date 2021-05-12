@@ -1,8 +1,11 @@
 from blocklist_logout import BLOCKLIST_LOGOUT
-from flask_restful import Resource, reqparse
-from models.user import UserModel
-from werkzeug.security import safe_str_cmp
+from flask import Flask
 from flask_jwt_extended import create_access_token, create_refresh_token,get_jwt_identity,jwt_required,get_jwt
+from flask_restful import Resource, reqparse
+import hashlib
+from models.user import UserModel
+import os
+from werkzeug.security import safe_str_cmp
 
 _user_parser = reqparse.RequestParser()
 _user_parser.add_argument('username',
@@ -21,6 +24,13 @@ _user_parser.add_argument('password',
                     required=True,
                     help="This field cannot be blank."
                     )
+
+
+def hash_generate(value):
+    m = hashlib.md5()
+    hash_value = f"{os.getenv('FLASK_SECRET_KEY')}{value}"
+    return hashlib.md5(str.encode(hash_value)).hexdigest()
+
 
 class UserRegister(Resource):
 
@@ -41,8 +51,7 @@ class UserLogin(Resource):
         data = _user_parser.parse_args()
 
         user = UserModel.find_by_username(data['username'])
-
-        if user and safe_str_cmp(user.password, data['password']):
+        if user and safe_str_cmp(user.password, hash_generate(data['password'])):
            #identity will be add the user.id information in JWT
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
@@ -107,13 +116,14 @@ class UserProfile(Resource):
         data = _user_parser.parse_args()
         user = UserModel.find_by_id(get_jwt_identity())
         print(user.password)
-        if user and safe_str_cmp(user.password, data['password']):
+        if user and safe_str_cmp(user.password, hash_generate(data['password'])):
             if data['email']:
                 user.email = data['email']
             if data['username']:
                 user.email = data['email']
             if data['new_password']:
-                user.password = data['new_password']
+                print(f"  -------------------{hash_generate(data['new_password'])}")
+                user.password = hash_generate(data['new_password'])
             user.save_to_db()
 
             jti = get_jwt()['jti']  #jti is the JWT identification
