@@ -1,8 +1,8 @@
+from blocklist_logout import BLOCKLIST_LOGOUT
 from db import db
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from resources.user import UserRegister, UserLogin, UserLogout,UserProfile
@@ -37,6 +37,12 @@ api.add_resource(UserProfile, '/user/my_profile')
 @app.before_first_request
 def create_tables():
     db.create_all()
+
+
+# This method will check if a token is blocklisted, and will be called automatically when blocklist is enabled
+@jwt.token_in_blocklist_loader
+def token_in_blocklist_loader(jwt_header,decrypted_token):
+    return decrypted_token['jti'] in BLOCKLIST_LOGOUT  # Here we blocklist particular JWTs that have been created in the past.
 
 
 if __name__ == '__main__':
