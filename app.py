@@ -30,6 +30,9 @@ api.add_resource(UserProfile, '/user/my_profile')
 api.add_resource(UserRegister, '/register')
 api.add_resource(MarvelComicDetails, '/marvel/comics/<int:id_comic>') # Ex: /marvel/comics/1009515
 api.add_resource(MarvelComics, '/marvel/comics')
+api.add_resource(UserComics, '/user/comics')
+
+
 ### routes
 
 @app.before_first_request
