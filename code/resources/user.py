@@ -13,13 +13,18 @@ def hash_generate(value):
     return hashlib.md5(str.encode(hash_value)).hexdigest()
 
 
-def verify_username_or_email_already_exist(username, email):
-    if username:
-        if UserModel.find_by_username('username'):
-            return {"message": "A user with that username already exists"}, 400
-    if email:
-        if UserModel.find_by_username('email'):
-            return {"message": "A user with that email already exists"}, 400
+def verifiy_is_email_exist(email):
+    if UserModel.find_by_email(email):
+        return 400
+
+
+def verifiy_is_username_exist(username):
+    if UserModel.find_by_username(username):
+        return 400
+
+
+def msg_value_already_exist(key_value):
+    return {"message": f"A user with this {key_value} already exists"}, 400
 
 
 class UserRegister(Resource):
@@ -44,7 +49,11 @@ class UserRegister(Resource):
                                   )
         data = _user_parser.parse_args()
 
-        verify_username_or_email_already_exist(data['username', data['email']])
+        if verifiy_is_username_exist(data['username']) == 400:
+            return msg_value_already_exist('username')
+
+        if verifiy_is_email_exist(data['email']) == 400:
+            return msg_value_already_exist('email')
 
         user = UserModel(**data)
         user.save_to_db()
@@ -124,11 +133,15 @@ class UserProfile(Resource):
         user = UserModel.find_by_id(get_jwt_identity())
         if user and safe_str_cmp(user.password, hash_generate(data['password'])):
             if data['email']:
-                verify_username_or_email_already_exist(data['email'], None)
+                if verifiy_is_email_exist(data['email']) == 400:
+                    return msg_value_already_exist('email')
                 user.email = data['email']
+                
             if data['username']:
-                verify_username_or_email_already_exist(None, data['username'])
+                if verifiy_is_username_exist(data['username']) == 400:
+                        return msg_value_already_exist('username')
                 user.username = data['username']
+
             if data['new_password']:
                 user.password = hash_generate(data['new_password'])
             user.save_to_db()
