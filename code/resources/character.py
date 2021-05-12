@@ -1,8 +1,7 @@
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, reqparse
 from models.character import CharacterModel
-from models.marvel import MarvelModel
 from services.character import UserCharacterServices, MarvelCharacterServices, MarvelCharacterDetailsServices
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 
 class UserCharacters(Resource):

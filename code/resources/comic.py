@@ -1,7 +1,6 @@
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, reqparse
 from models.comic import ComicModel
-from models.marvel import MarvelModel
 from services.comic import UserComicServices, MarvelComicServices, MarvelComicDetailsServices
 
 

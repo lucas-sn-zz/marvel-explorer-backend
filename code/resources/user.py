@@ -1,6 +1,5 @@
 from blocklist_logout import BLOCKLIST_LOGOUT
-from flask import Flask
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
 from flask_restful import Resource, reqparse
 import hashlib
 from models.user import UserModel
