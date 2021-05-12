@@ -29,6 +29,7 @@ api.add_resource(UserLogin, '/login')
 api.add_resource(UserLogout, '/logout')
 
 api.add_resource(UserRegister, '/register')
+api.add_resource(UserProfile, '/user/my_profile')
 
 
 ### routes

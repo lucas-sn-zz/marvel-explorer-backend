@@ -61,3 +61,63 @@ class UserLogout(Resource):
         jti = get_jwt()['jti']  #jti is the JWT identification
         BLOCKLIST_LOGOUT.add(jti)
         return {"message": "Successfully logged out"}, 200
+
+
+class UserProfile(Resource):
+    @jwt_required()
+    def get(self):
+        user = UserModel.find_by_id(get_jwt_identity())
+        return {
+            "usuario": user.username,
+            "email": user.email,
+            "pass": user.password
+                    },200
+
+    @jwt_required()
+    def put(self):
+        _user_parser = reqparse.RequestParser()
+
+        _user_parser.add_argument('username',
+                    type=str,
+                    required=False,
+                    help="This field cannot be blank."
+                    )
+
+        _user_parser.add_argument('email',
+                    type=str,
+                    required=False,
+                    help="This field cannot be blank."
+                    )
+
+        _user_parser.add_argument('email',
+                            type=str,
+                            required=False,
+                            help="This field cannot be blank."
+                            )
+        _user_parser.add_argument('password',
+                            type=str,
+                            required=True,
+                            help="This field cannot be blank."
+                            )
+        _user_parser.add_argument('new_password',
+                            type=str,
+                            required=True,
+                            help="This field cannot be blank."
+                            )
+        data = _user_parser.parse_args()
+        user = UserModel.find_by_id(get_jwt_identity())
+        print(user.password)
+        if user and safe_str_cmp(user.password, data['password']):
+            if data['email']:
+                user.email = data['email']
+            if data['username']:
+                user.email = data['email']
+            if data['new_password']:
+                user.password = data['new_password']
+            user.save_to_db()
+
+            jti = get_jwt()['jti']  #jti is the JWT identification
+            BLOCKLIST_LOGOUT.add(jti)
+            return {"message": "Changes completed successfully. Please log in again"}, 200
+
+        return {"message": "Invalid Credentials!"}, 401
