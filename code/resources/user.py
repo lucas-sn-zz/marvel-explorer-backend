@@ -6,24 +6,6 @@ from models.user import UserModel
 import os
 from werkzeug.security import safe_str_cmp
 
-_user_parser = reqparse.RequestParser()
-_user_parser.add_argument('username',
-                          type=str,
-                          required=True,
-                          help="This field cannot be blank."
-                          )
-
-_user_parser.add_argument('email',
-                          type=str,
-                          required=True,
-                          help="This field cannot be blank."
-                          )
-_user_parser.add_argument('password',
-                          type=str,
-                          required=True,
-                          help="This field cannot be blank."
-                          )
-
 
 def hash_generate(value):
     m = hashlib.md5()
@@ -31,16 +13,39 @@ def hash_generate(value):
     return hashlib.md5(str.encode(hash_value)).hexdigest()
 
 
+def verify_username_or_email_already_exist(username, email):
+    if username:
+        if UserModel.find_by_username('username'):
+            return {"message": "A user with that username already exists"}, 400
+    if email:
+        if UserModel.find_by_username('email'):
+            return {"message": "A user with that email already exists"}, 400
+
+
 class UserRegister(Resource):
 
     def post(self):
+        _user_parser = reqparse.RequestParser()
+        _user_parser.add_argument('username',
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
+
+        _user_parser.add_argument('email',
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
+        _user_parser.add_argument('password',
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
         data = _user_parser.parse_args()
 
-        if UserModel.find_by_username(data['username']):
-            return {"message": "A user with that username already exists"}, 400
+        verify_username_or_email_already_exist(data['username', data['email']])
 
-        if UserModel.find_by_username(data['email']):
-            return {"message": "A user with that email already exists"}, 400
         user = UserModel(**data)
         user.save_to_db()
 
@@ -49,6 +54,17 @@ class UserRegister(Resource):
 
 class UserLogin(Resource):
     def post(self):
+        _user_parser = reqparse.RequestParser()
+        _user_parser.add_argument('username',
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
+        _user_parser.add_argument('password',
+                                  type=str,
+                                  required=True,
+                                  help="This field cannot be blank."
+                                  )
         data = _user_parser.parse_args()
 
         user = UserModel.find_by_username(data['username'])
@@ -108,9 +124,11 @@ class UserProfile(Resource):
         user = UserModel.find_by_id(get_jwt_identity())
         if user and safe_str_cmp(user.password, hash_generate(data['password'])):
             if data['email']:
+                verify_username_or_email_already_exist(data['email'], None)
                 user.email = data['email']
             if data['username']:
-                user.email = data['email']
+                verify_username_or_email_already_exist(None, data['username'])
+                user.username = data['username']
             if data['new_password']:
                 user.password = hash_generate(data['new_password'])
             user.save_to_db()
